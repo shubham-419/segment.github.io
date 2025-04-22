@@ -1,61 +1,213 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Home Questionnaire<span id="selection-marker-1" class="redactor-selection-marker"></span></title>
-
+    <title>Segment</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        button { margin: 5px; padding: 8px 16px; }
+        .product { border: 1px solid #eee; padding: 10px; margin: 10px 0; }
+        .custom-fields { margin: 10px 0; }
+        .custom-field { margin: 5px 0; }
+    </style>
     <script>
         !function(){var i="analytics",analytics=window[i]=window[i]||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","screen","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware","register"];analytics.factory=function(e){return function(){if(window[i].initialized)return window[i][e].apply(window[i],arguments);var n=Array.prototype.slice.call(arguments);if(["track","screen","alias","group","page","identify"].indexOf(e)>-1){var c=document.querySelector("link[rel='canonical']");n.push({__t:"bpc",c:c&&c.getAttribute("href")||void 0,p:location.pathname,u:location.href,s:location.search,t:document.title,r:document.referrer})}n.unshift(e);analytics.push(n);return analytics}};for(var n=0;n<analytics.methods.length;n++){var key=analytics.methods[n];analytics[key]=analytics.factory(key)}analytics.load=function(key,n){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.setAttribute("data-global-segment-analytics-key",i);t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r);analytics._loadOptions=n};analytics._writeKey="19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR";;analytics.SNIPPET_VERSION="5.2.0";
         analytics.load("19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR");
         analytics.page();
         }}();
-      </script>
-</head>
 
-<body>
-    <h1>What is your favorite place to travel?</h1>
-    <p>I am building a directory of the sweetest travel destinations.</p>
-    <form name="travel" onsubmit="identify(event)">
-        What is your favorite travel destination?
-        <input name="destination" required="" size="81" type="text" />
-        <br><br><br>
-        Any recommendations (cool things to do, places to visit or restaurants to eat)?
-        <br><br>
-        <textarea cols="81" name="details" required="" rows="10">
-    </textarea>
-        <br><br>
-        Name: <input name="fullname" required="" size="75" type="text" />
-        <br><br>
-        Email: <input name="email" required="" size="75" type="email" />
-        <br><br>
-        <input name="submit" type="submit" value="submit" />
-    </form>
-
-
-    <script type="text/javascript">
-        function identify(e) {
-            e.preventDefault();
-            var form = e.target;
-            var email = form["email"].value;
-            var fullname = form["fullname"].value;
-            var destination = form["destination"].value;
-            var details = form["details"].value;
-            var user = {
-                email: email,
-                name: fullname,
-                destination: destination,
-                details: details
-            };
-            analytics.identify('1234', {
-                email: email,
-                name: fullname
+        function getCustomFields(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return {};
+            
+            const fields = {};
+            container.querySelectorAll('.custom-field').forEach(field => {
+                const key = field.querySelector('.field-key').value;
+                const value = field.querySelector('.field-value').value;
+                if (key && value) fields[key] = value;
             });
-            analytics.track('destination submitted', user, function () {
-                window.location.href = "";
+            return fields;
+        }
+
+        function addCustomField(containerId) {
+            const container = document.getElementById(containerId);
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'custom-field';
+            fieldDiv.innerHTML = `
+                <input type="text" class="field-key" placeholder="Field name">
+                <input type="text" class="field-value" placeholder="Field value">
+                <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(fieldDiv);
+        }
+
+        // Page Navigation Tracking
+        function navigateToSection(section) {
+            const customFields = getCustomFields('pageCustomFields');
+            analytics.page(section, {
+                title: section,
+                path: '/' + section.toLowerCase(),
+                ...customFields
+            });
+            document.getElementById('currentSection').textContent = section;
+        }
+
+        // User Identification
+        function identifyUser(e) {
+            e.preventDefault();
+            const form = e.target;
+            const userId = Date.now().toString();
+            const customFields = getCustomFields('identifyCustomFields');
+            analytics.identify(userId, {
+                email: form.email.value,
+                name: form.name.value,
+                subscription: form.subscription.value,
+                ...customFields
+            });
+            alert('User identified!');
+        }
+
+        // Group Assignment
+        function assignToGroup() {
+            const groupId = 'group_' + Date.now();
+            const customFields = getCustomFields('groupCustomFields');
+            analytics.group(groupId, {
+                name: 'Premium Users',
+                plan: 'premium',
+                employees: 50,
+                ...customFields
+            });
+            alert('Assigned to group!');
+        }
+
+        // Track Product View
+        function viewProduct(productName, price) {
+            const customFields = getCustomFields('productCustomFields');
+            analytics.track('Product Viewed', {
+                product_id: Date.now(),
+                name: productName,
+                price: price,
+                currency: 'USD',
+                ...customFields
             });
         }
+
+        // Track Form Submission
+        function trackFormSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const customFields = getCustomFields('formCustomFields');
+            analytics.trackForm(form, 'Form Submitted', {
+                form_type: 'feedback',
+                submission_time: new Date().toISOString(),
+                ...customFields
+            });
+            alert('Form tracked and submitted!');
+        }
+
+        // Track Link Clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            analytics.trackLink(document.querySelectorAll('.tracked-link'), 'Link Clicked', {
+                link_type: 'external'
+            });
+        });
+
+        // Alias User
+        function aliasUser() {
+            const previousId = localStorage.getItem('previousId') || 'anonymous_user';
+            const newId = 'user_' + Date.now();
+            const customFields = getCustomFields('aliasCustomFields');
+            analytics.alias(newId, previousId, customFields);
+            localStorage.setItem('previousId', newId);
+            alert('User aliased!');
+        }
     </script>
+</head>
+<body>
+    <app-root></app-root>
+    <h1>Segment</h1>
+    <p>Current Section: <span id="currentSection">Home</span></p>
 
+    <div class="section">
+        <h2>Navigation (Page Tracking)</h2>
+        <div class="custom-fields" id="pageCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('pageCustomFields')">Add Custom Field</button>
+        </div>
+        <button onclick="navigateToSection('Home')">Home</button>
+        <button onclick="navigateToSection('Products')">Products</button>
+        <button onclick="navigateToSection('About')">About</button>
+    </div>
+
+    <div class="section">
+        <h2>User Identification</h2>
+        <div class="custom-fields" id="identifyCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('identifyCustomFields')">Add Custom Field</button>
+        </div>
+        <form onsubmit="identifyUser(event)">
+            <input type="text" name="name" placeholder="Name" required><br>
+            <input type="email" name="email" placeholder="Email" required><br>
+            <select name="subscription">
+                <option value="free">Free</option>
+                <option value="premium">Premium</option>
+            </select><br>
+            <button type="submit">Identify User</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Group Assignment</h2>
+        <div class="custom-fields" id="groupCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('groupCustomFields')">Add Custom Field</button>
+        </div>
+        <button onclick="assignToGroup()">Assign to Premium Group</button>
+    </div>
+
+    <div class="section">
+        <h2>Product Tracking</h2>
+        <div class="custom-fields" id="productCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('productCustomFields')">Add Custom Field</button>
+        </div>
+        <div class="product">
+            <h3>Product A</h3>
+            <p>Price: $99</p>
+            <button onclick="viewProduct('Product A', 99)">View Product</button>
+        </div>
+        <div class="product">
+            <h3>Product B</h3>
+            <p>Price: $149</p>
+            <button onclick="viewProduct('Product B', 149)">View Product</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Form Tracking</h2>
+        <div class="custom-fields" id="formCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('formCustomFields')">Add Custom Field</button>
+        </div>
+        <form onsubmit="trackFormSubmit(event)">
+            <textarea name="feedback" placeholder="Your feedback" required></textarea><br>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Link Tracking</h2>
+        <a href="https://segment.com" class="tracked-link" target="_blank">Visit Segment</a>
+    </div>
+
+    <div class="section">
+        <h2>User Aliasing</h2>
+        <div class="custom-fields" id="aliasCustomFields">
+            <h3>Custom Fields</h3>
+            <button onclick="addCustomField('aliasCustomFields')">Add Custom Field</button>
+        </div>
+        <button onclick="aliasUser()">Alias User</button>
+    </div>
 </body>
-
 </html>
