@@ -39,6 +39,8 @@
         //     next(payload);
         // });
 
+        }}();
+
         analytics.addDestinationMiddleware('Google Analytics 4 Web', ({ payload, next }) => {
             const referrer = document.referrer || '';
             console.log("✅ Destination middleware triggered. Referrer:", referrer);
@@ -50,11 +52,10 @@
             payload.obj.context.page.referrer = "newsbreak.com";
             payload.obj.context.campaign.source = "newsbreak.com";
             payload.obj.context.campaign.medium = "referral";
+            payload.obj.properties.middleware_test = true;
             console.log("✅ Destination middleware triggered. Referrer:", payload);
             next(payload);
           });
-
-        }}();
 
         function getCustomFields(containerId) {
             const container = document.getElementById(containerId);
