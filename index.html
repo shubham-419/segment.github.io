@@ -1,41 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Segment</title>
     <meta charset="UTF-8">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
-        button { margin: 5px; padding: 8px 16px; }
-        .product { border: 1px solid #eee; padding: 10px; margin: 10px 0; }
-        .custom-fields { margin: 10px 0; }
-        .custom-field { margin: 5px 0; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+        }
+
+        .product {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .custom-fields {
+            margin: 10px 0;
+        }
+
+        .custom-field {
+            margin: 5px 0;
+        }
     </style>
     <script>
-        !function(){var i="analytics",analytics=window[i]=window[i]||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","screen","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware","register"];analytics.factory=function(e){return function(){if(window[i].initialized)return window[i][e].apply(window[i],arguments);var n=Array.prototype.slice.call(arguments);if(["track","screen","alias","group","page","identify"].indexOf(e)>-1){var c=document.querySelector("link[rel='canonical']");n.push({__t:"bpc",c:c&&c.getAttribute("href")||void 0,p:location.pathname,u:location.href,s:location.search,t:document.title,r:document.referrer})}n.unshift(e);analytics.push(n);return analytics}};for(var n=0;n<analytics.methods.length;n++){var key=analytics.methods[n];analytics[key]=analytics.factory(key)}analytics.load=function(key,n){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.setAttribute("data-global-segment-analytics-key",i);t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r);analytics._loadOptions=n};analytics._writeKey="19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR";;analytics.SNIPPET_VERSION="5.2.0";
-        analytics.load("19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR");
-        analytics.page();
-        
-        }}();
+        !function () {
+            var i = "analytics", analytics = window[i] = window[i] || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+                analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "screen", "once", "off", "on", "addSourceMiddleware", "addIntegrationMiddleware", "setAnonymousId", "addDestinationMiddleware", "register"]; analytics.factory = function (e) { return function () { if (window[i].initialized) return window[i][e].apply(window[i], arguments); var n = Array.prototype.slice.call(arguments); if (["track", "screen", "alias", "group", "page", "identify"].indexOf(e) > -1) { var c = document.querySelector("link[rel='canonical']"); n.push({ __t: "bpc", c: c && c.getAttribute("href") || void 0, p: location.pathname, u: location.href, s: location.search, t: document.title, r: document.referrer }) } n.unshift(e); analytics.push(n); return analytics } }; for (var n = 0; n < analytics.methods.length; n++) { var key = analytics.methods[n]; analytics[key] = analytics.factory(key) } analytics.load = function (key, n) { var t = document.createElement("script"); t.type = "text/javascript"; t.async = !0; t.setAttribute("data-global-segment-analytics-key", i); t.src = "https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js"; var r = document.getElementsByTagName("script")[0]; r.parentNode.insertBefore(t, r); analytics._loadOptions = n }; analytics._writeKey = "19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR";; analytics.SNIPPET_VERSION = "5.2.0";
+                analytics.load("19wi0UHZPMeUfIa3dV4CrOR4aAVtGrCR");
+                analytics.page();
+                analytics.identify(
+                    {
+                        name: 'James Bond',
+                        email: '007@sis.gov.uk',
+                        createdAt: '2025-10-16T09:19:47.155Z'
+                    }
+                );
+            }
+        }();
 
-        analytics.addDestinationMiddleware('HubSpot Web (Actions)', ({ payload, next }) => {
+        analytics.addDestinationMiddleware('Pendo', ({ payload, next }) => {
             const referrer = document.referrer || '';
             console.log("✅ Destination middleware triggered. event:", payload);
 
             console.log("modifying anonymousId and userId");
             // you can also filter out events based on event type
             payload.obj.anonymousId = "1234567890";
-            if(payload.obj.userId){
+            if (payload.obj.userId) {
                 payload.obj.userId = "0987654321";      // add your custom logic
             }
             console.log("payload after modification", payload);
             next(payload);
-          });
+        });
 
         function getCustomFields(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return {};
-            
+
             const fields = {};
             container.querySelectorAll('.custom-field').forEach(field => {
                 const key = field.querySelector('.field-key').value;
@@ -101,6 +136,7 @@
             const customFields = getCustomFields('productCustomFields');
             analytics.track('Product Viewed', {
                 product_id: Date.now(),
+                messageid: "1234554321234",
                 name: productName,
                 price: price,
                 currency: 'USD',
@@ -122,7 +158,7 @@
         }
 
         // Track Link Clicks
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             analytics.trackLink(document.querySelectorAll('.tracked-link'), 'Link Clicked', {
                 link_type: 'external'
             });
@@ -139,6 +175,7 @@
         }
     </script>
 </head>
+
 <body>
     <app-root></app-root>
     <h1>Segment</h1>
@@ -225,4 +262,5 @@
         <button onclick="aliasUser()">Alias User</button>
     </div>
 </body>
+
 </html>
